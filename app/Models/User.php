@@ -42,4 +42,16 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public function watchlistItems() {
+        return $this->hasMany(WatchlistItem::class);
+    }
+
+    public function ratings() {
+        return $this->hasMany(Rating::class);
+    }
+
+    public function reviews() {
+        return $this->hasMany(Review::class);
+    }
 }
