@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MovieController;
 use App\Http\Controllers\TvShowController;
+use App\Http\Controllers\WatchlistItemController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -31,6 +32,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('movies',MovieController::class);
 
     Route::apiResource('tv-shows', TvShowController::class);
+
+    Route::get('/watchlist', [WatchlistItemController::class,'index']);
+    Route::post('/watchlist', [WatchlistItemController::class,'store']);
+    Route::delete('/watchlist/{watchlistItem}', [WatchlistItemController::class,'destroy']);
 });
 
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
