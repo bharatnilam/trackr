@@ -13,7 +13,6 @@ class Movie extends Model
         'title',
         'release_year',
         'pg_rating',
-        'released_at',
         'runtime',
         'director',
         'genre',

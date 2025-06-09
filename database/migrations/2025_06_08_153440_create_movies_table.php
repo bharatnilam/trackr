@@ -17,7 +17,6 @@ return new class extends Migration
             $table->string('title');
             $table->integer('release_year');
             $table->string('pg_rating')->nullable();
-            $table->date('released_at')->nullable();
             $table->integer('runtime')->nullable();
             $table->string('director')->nullable();
             $table->string('genre')->nullable();

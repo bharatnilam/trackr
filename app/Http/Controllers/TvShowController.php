@@ -28,7 +28,7 @@ class TvShowController extends Controller
         try {
             $validatedData = $request->validate([
                 'title' => 'required|string|max:255',
-                'release_year' => 'required|integer|min:1800|max:' . (date('y') + 5),
+                'release_year' => 'required|integer|min:1800|max:' . (date('Y') + 5),
                 'pg_rating' => 'nullable|string|max:20',
                 'runtime' => 'nullable|integer|min:1',
                 'director' => 'nullable|string|max"255',
@@ -76,7 +76,7 @@ class TvShowController extends Controller
         try {
             $validatedData = $request->validate([
                 'title' => 'sometimes|required|string|max:255',
-                'release_year' => 'sometimes|required|integer|min:1800|max:' . (date('y') + 5),
+                'release_year' => 'sometimes|required|integer|min:1800|max:' . (date('Y') + 5),
                 'pg_rating' => 'nullable|string|max:20',
                 'runtime' => 'nullable|integer|min:1',
                 'director' => 'nullable|string|max"255',
