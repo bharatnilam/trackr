@@ -67,7 +67,7 @@ class ReviewController extends Controller
         $review = $user->reviews()->create([
             'reviewable_id' => $validatedData['reviewable_id'],
             'reviewable_type' => $modelType,
-            'body' => $validatedData['review']
+            'body' => $validatedData['body']
         ]);
 
         $review->load('reviewable');
@@ -81,10 +81,10 @@ class ReviewController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Review $review)
+    /* public function show(Review $review)
     {
         //
-    }
+    } */
 
     /**
      * Update the specified resource in storage.

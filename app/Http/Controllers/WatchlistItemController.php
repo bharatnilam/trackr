@@ -81,10 +81,10 @@ class WatchlistItemController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(WatchlistItem $watchlistItem)
+    /* public function show(WatchlistItem $watchlistItem)
     {
         //
-    }
+    } */
 
     /**
      * Update the specified resource in storage.

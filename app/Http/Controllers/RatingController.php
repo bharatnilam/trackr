@@ -82,10 +82,10 @@ class RatingController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Rating $rating)
+    /* public function show(Rating $rating)
     {
         //
-    }
+    } */
 
     /**
      * Update the specified resource in storage.
