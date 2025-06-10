@@ -47,7 +47,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/reviews', [ReviewController::class,'index']);
     Route::post('/reviews', [ReviewController::class,'store']);
     Route::put('/reviews/{review}', [ReviewController::class,'update']);
-    Route::delete('/reviews/{review}', [ReviewController::class,'destreviews']);
+    Route::delete('/reviews/{review}', [ReviewController::class,'destroy']);
 });
 
 /* Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
