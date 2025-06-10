@@ -43,7 +43,7 @@ class WatchlistItemController extends Controller
         }
 
         $user = $request->user();
-        $modelType = 'App\Models\\' . $validatedData['watchable_type'];
+        $modelType = 'App\\Models\\' . $validatedData['watchable_type'];
 
         try {
             $watchable = $modelType::findOrFail($validatedData['watchable_id']);
