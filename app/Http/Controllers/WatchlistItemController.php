@@ -139,4 +139,19 @@ class WatchlistItemController extends Controller
             'message' => 'Item removed from watchlist successfully'
         ], 204);
     }
+
+    public function getWatchedHistory(Request $request) {
+        $user = $request->user();
+
+        $watchedItems = $user->watchlistItems()
+            ->where('is_watched', true)
+            ->orderBy('wacthed_at', 'desc')
+            ->with('watchable')
+            ->get();
+
+        return response()->json([
+            'message' => 'Watched history retrieved successfully',
+            'watched_history' => $watchedItems
+        ]);
+    }
 }

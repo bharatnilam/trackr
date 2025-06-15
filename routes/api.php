@@ -38,6 +38,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/watchlist', [WatchlistItemController::class,'index']);
     Route::post('/watchlist', [WatchlistItemController::class,'store']);
     Route::delete('/watchlist/{watchlistItem}', [WatchlistItemController::class,'destroy']);
+    Route::get('watched-history', [WatchlistItemController::class, 'getWatchedHistory']);
 
     Route::get('/ratings', [RatingController::class,'index']);
     Route::post('/ratings', [RatingController::class,'store']);
