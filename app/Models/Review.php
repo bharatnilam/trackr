@@ -14,7 +14,7 @@ class Review extends Model
         'user_id',
         'reviewable_id',
         'reviewable_type',
-        'title',
+        // 'title',
         'body'
     ];
 

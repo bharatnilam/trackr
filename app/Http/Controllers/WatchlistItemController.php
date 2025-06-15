@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\WatchlistItem;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use function PHPUnit\Framework\returnArgument;
 
@@ -91,7 +92,34 @@ class WatchlistItemController extends Controller
      */
     public function update(Request $request, WatchlistItem $watchlistItem)
     {
-        //
+        if (Auth::id() !== $watchlistItem->user_id) {
+            return response()->json([
+                'message' => 'Unauthorized'
+            ], 403);
+        }
+
+        $validated = $request->validate([
+            'is_watched' => 'sometimes|boolean'
+        ]);
+
+        if (isset($validated['is_watched']) && $validated['is_watched'] === true) {
+            if (! $watchlistItem->is_watched) {
+                $watchlistItem->is_watched = true;
+                $watchlistItem->watched_at = now();
+            }
+        } elseif (isset($validated['is_watched']) && $validated['is_watched'] === false) {
+            if ($watchlistItem->is_watched) {
+                $watchlistItem->is_watched = false;
+                $watchlistItem->watched_at = null;
+            }
+        }
+
+        $watchlistItem->save();
+
+        return response()->json([
+            'message' => 'Watchlist Item updated successfully',
+            'watchlist_item' => $watchlistItem
+        ]);
     }
 
     /**
