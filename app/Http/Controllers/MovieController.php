@@ -2,101 +2,49 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreMovieRequest;
+use App\Http\Requests\UpdateMovieRequest;
+use App\Http\Resources\MovieResource;
 use App\Models\Movie;
-use Illuminate\Http\Request;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class MovieController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): AnonymousResourceCollection
     {
         $movies = Movie::all();
-        return response()->json([
-            'message' => 'Movies retrieved successfully',
-            'movies' => $movies
-        ]);
+        return MovieResource::collection($movies);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreMovieRequest $request): MovieResource
     {
-        try {
-            $validatedData = $request->validate([
-                'title' => 'required|string|max:255',
-                'release_year' => 'required|integer|min:1800|max:' . (date('Y') + 5),
-                'pg_rating' => 'nullable|string|max:20',
-                'runtime' => 'nullable|integer|min:1',
-                'director' => 'nullable|string|max:255',
-                'genre' => 'nullable|string|max:255',
-                'actors' => 'nullable|string',
-                'synopsis' => 'nullable|string',
-                'poster_image_url' => 'nullable|url|max:2048',
-                'external_id' => 'nullable|string|max:255|unique:movies',
-                'available_platforms' => 'nullable|string'
-            ]);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'message' => 'Validation error',
-                'errors' => $e->errors()
-            ], 422);
-        }
+        $movie = Movie::create($request->validated());
 
-        $movie = Movie::create($validatedData);
-
-        return response()->json([
-            'message' => 'Movie created successfully',
-            'movie' => $movie
-        ], 201);
+        return new MovieResource($movie);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Movie $movie)
+    public function show(Movie $movie): MovieResource
     {
-        return response()->json([
-            'message' => 'Movie retrieved successfully',
-            'movie' => $movie
-        ]);
+        return new MovieResource($movie);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Movie $movie)
+    public function update(UpdateMovieRequest $request, Movie $movie): MovieResource
     {
-        try {
-            $validatedData = $request->validate([
-                'title' => 'sometimes|required|string|max:255',
-                'release_year' => 'sometimes|required|integer|min:1800|max:' . (date('Y') + 5),
-                'pg_rating' => 'nullable|string|max:20',
-                'runtime' => 'nullable|integer|min:1',
-                'director' => 'nullable|string|max:255',
-                'genre' => 'nullable|string|max:255',
-                'actors' => 'nullable|string',
-                'synopsis' => 'nullable|string',
-                'poster_image_url' => 'nullable|url|max:2048',
-                'external_id' => 'nullable|string|max:255|unique:movies',
-                'available_platforms' => 'nullable|string'
-            ]);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'message'=> 'Validation error',
-                'errors'=> $e->errors()
-            ], 422);
-        }
+        $movie->update($request->validated());
 
-        $movie->update($validatedData);
-
-        return response()->json([
-            'message' => 'Movie updated successfully',
-            'movie' => $movie
-        ]);
+        return new MovieResource($movie);
     }
 
     /**

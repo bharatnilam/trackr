@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreTvShowRequest;
+use App\Http\Requests\UpdateTvShowRequest;
+use App\Http\Resources\TvShowResource;
 use App\Models\TvShow;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Validation\ValidationException;
 
 class TvShowController extends Controller
@@ -11,98 +15,38 @@ class TvShowController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): AnonymousResourceCollection
     {
         $tvShows = TvShow::all();
-        return response()->json([
-            'message' => 'TV Shows retrieved successfully',
-            'tv_shows' => $tvShows
-        ]);
+        return TvShowResource::collection($tvShows);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreTvShowRequest $request): TvShowResource
     {
-        try {
-            $validatedData = $request->validate([
-                'title' => 'required|string|max:255',
-                'release_year' => 'required|integer|min:1800|max:' . (date('Y') + 5),
-                'pg_rating' => 'nullable|string|max:20',
-                'runtime' => 'nullable|integer|min:1',
-                'director' => 'nullable|string|max:255',
-                'genre' => 'nullable|string|max:255',
-                'actors' => 'nullable|string',
-                'synopsis' => 'nullable|string',
-                'number_of_seasons' => 'nullable|integer|min:1',
-                'number_of_episodes' => 'nullable|integer|min:1',
-                'status' => 'nullable|string|max:255',
-                'poster_image_url' => 'nullable|url|max:2048',
-                'external_id' => 'nullable|string|max:255|unique:tv_shows',
-                'available_platforms' => 'nullable|string'
-            ]);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'message' => 'Validation error',
-                'errors' => $e->errors()
-            ], 422);
-        }
+        $tvShow = TvShow::create($request->validated());
 
-        $tvShow = TvShow::create($validatedData);
-
-        return response()->json([
-            'message'=> 'TV Show created successfully',
-            'tv_show' => $tvShow
-        ], 201);
+        return new TvShowResource($tvShow);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(TvShow $tvShow)
+    public function show(TvShow $tvShow): TvShowResource
     {
-        return response()->json([
-            'message' => 'TV Show retrieved successfully',
-            'tv_show' => $tvShow
-        ]);
+        return new TvShowResource($tvShow);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, TvShow $tvShow)
+    public function update(UpdateTvShowRequest $request, TvShow $tvShow): TvShowResource
     {
-        try {
-            $validatedData = $request->validate([
-                'title' => 'sometimes|required|string|max:255',
-                'release_year' => 'sometimes|required|integer|min:1800|max:' . (date('Y') + 5),
-                'pg_rating' => 'nullable|string|max:20',
-                'runtime' => 'nullable|integer|min:1',
-                'director' => 'nullable|string|max:255',
-                'genre' => 'nullable|string|max:255',
-                'actors' => 'nullable|string',
-                'synopsis' => 'nullable|string',
-                'number_of_seasons' => 'nullable|integer|min:1',
-                'number_of_episodes' => 'nullable|integer|min:1',
-                'status' => 'nullable|string|max:255',
-                'poster_image_url' => 'nullable|url|max:2048',
-                'external_id' => 'nullable|string|max:255|unique:tv_shows',
-                'available_platforms' => 'nullable|string'
-            ]);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'message' => 'Validation error',
-                'errors'=> $e->errors()
-            ], 422);
-        }
+        $tvShow->update($request->validated());
 
-        $tvShow->update($validatedData);
-
-        return response()->json([
-            'message'=> 'TV Show updated successfully',
-            'tv_show' => $tvShow
-        ]);
+        return new TvShowResource($tvShow);
     }
 
     /**
