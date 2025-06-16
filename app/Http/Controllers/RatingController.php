@@ -6,7 +6,6 @@ use App\Models\Rating;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
-use function PHPUnit\Framework\returnArgument;
 
 class RatingController extends Controller
 {
