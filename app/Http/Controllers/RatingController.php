@@ -6,15 +6,17 @@ use App\Http\Requests\StoreRatingRequest;
 use App\Http\Requests\UpdateRatingRequest;
 use App\Http\Resources\RatingResource;
 use App\Models\Rating;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Validation\ValidationException;
 
+#[Group('Ratings')]
 class RatingController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of all ratings.
      */
     public function index(Request $request): AnonymousResourceCollection
     {
@@ -26,7 +28,7 @@ class RatingController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created rating in storage.
      */
     public function store(StoreRatingRequest $request): RatingResource
     {
@@ -74,7 +76,7 @@ class RatingController extends Controller
     } */
 
     /**
-     * Update the specified resource in storage.
+     * Update the specified rating in storage.
      */
     public function update(UpdateRatingRequest $request, Rating $rating): RatingResource
     {
@@ -88,7 +90,7 @@ class RatingController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified rating from storage.
      */
     public function destroy(UpdateRatingRequest $request, Rating $rating)
     {

@@ -6,14 +6,16 @@ use App\Http\Requests\StoreReviewRequest;
 use App\Http\Requests\UpdateReviewRequest;
 use App\Http\Resources\ReviewResource;
 use App\Models\Review;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
+#[Group('Reviews')]
 class ReviewController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of all reviews.
      */
     public function index(Request $request): AnonymousResourceCollection
     {
@@ -25,7 +27,7 @@ class ReviewController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created review in storage.
      */
     public function store(StoreReviewRequest $request): ReviewResource
     {
@@ -73,7 +75,7 @@ class ReviewController extends Controller
     } */
 
     /**
-     * Update the specified resource in storage.
+     * Update the specified review in storage.
      */
     public function update(UpdateReviewRequest $request, Review $review): ReviewResource
     {
@@ -87,7 +89,7 @@ class ReviewController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified review from storage.
      */
     public function destroy(UpdateReviewRequest $request, Review $review)
     {

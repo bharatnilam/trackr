@@ -6,14 +6,16 @@ use App\Http\Requests\StoreTvShowRequest;
 use App\Http\Requests\UpdateTvShowRequest;
 use App\Http\Resources\TvShowResource;
 use App\Models\TvShow;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Validation\ValidationException;
 
+#[Group('TV Shows')]
 class TvShowController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of all TV shows.
      */
     public function index(): AnonymousResourceCollection
     {
@@ -22,7 +24,7 @@ class TvShowController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created TV show in storage.
      */
     public function store(StoreTvShowRequest $request): TvShowResource
     {
@@ -32,7 +34,7 @@ class TvShowController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Display the specified TV show.
      */
     public function show(TvShow $tvShow): TvShowResource
     {
@@ -40,7 +42,7 @@ class TvShowController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update the specified TV show in storage.
      */
     public function update(UpdateTvShowRequest $request, TvShow $tvShow): TvShowResource
     {
@@ -50,7 +52,7 @@ class TvShowController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified TV show from storage.
      */
     public function destroy(TvShow $tvShow)
     {

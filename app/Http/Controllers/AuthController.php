@@ -5,12 +5,19 @@ namespace App\Http\Controllers;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Models\User;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
+#[Group('Authentication')]
 class AuthController extends Controller
 {
+    /**
+     * Register a new user
+     * @param \App\Http\Requests\RegisterRequest $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function register(RegisterRequest $request) {
         $validatedData = $request->validated();
 
@@ -29,6 +36,11 @@ class AuthController extends Controller
         ], 201);
     }
 
+    /**
+     * User login
+     * @param \App\Http\Requests\LoginRequest $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function login(LoginRequest $request) {
         $validatedData = $request->validated();
 
@@ -49,6 +61,11 @@ class AuthController extends Controller
         ]);
     }
 
+    /**
+     * User logout
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function logout(Request $request) {
         $request->user()->currentAccessToken()->delete();
 

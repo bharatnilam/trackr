@@ -6,6 +6,7 @@ use App\Http\Requests\StoreWatchlistItemRequest;
 use App\Http\Requests\UpdateWatchlistItemRequest;
 use App\Http\Resources\WatchlistItemResource;
 use App\Models\WatchlistItem;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -13,10 +14,11 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use function PHPUnit\Framework\returnArgument;
 
+#[Group('Watchlist Items')]
 class WatchlistItemController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of all watchlist items.
      */
     public function index(Request $request): AnonymousResourceCollection
     {
@@ -28,7 +30,7 @@ class WatchlistItemController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created watchlist item in storage.
      */
     public function store(StoreWatchlistItemRequest $request): WatchlistItemResource
     {
@@ -76,7 +78,7 @@ class WatchlistItemController extends Controller
     } */
 
     /**
-     * Update the specified resource in storage.
+     * Update the specified watchlist item in storage.
      */
     public function update(UpdateWatchlistItemRequest $request, WatchlistItem $watchlistItem): WatchlistItemResource
     {
@@ -100,7 +102,7 @@ class WatchlistItemController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified watchlist item from storage.
      */
     public function destroy(UpdateWatchlistItemRequest $request, WatchlistItem $watchlistItem)
     {
@@ -111,6 +113,11 @@ class WatchlistItemController extends Controller
         ], 204);
     }
 
+    /**
+     * Display a listing of user watchlist items
+     * @param \Illuminate\Http\Request $request
+     * @return AnonymousResourceCollection
+     */
     public function getWatchedHistory(Request $request): AnonymousResourceCollection {
         $user = $request->user();
 

@@ -25,7 +25,7 @@ class WatchlistItemResource extends JsonResource
                 if ($this->watchable instanceof Movie) {
                     return new MovieResource($this->watchable);
                 }
-                if ($this->watchable instanceof  TvShow) {
+                if ($this->watchable instanceof TvShow) {
                     return new TvShowResource($this->watchable);
                 }
                 return $this->watchable;
