@@ -2,45 +2,34 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreReviewRequest;
+use App\Http\Requests\UpdateReviewRequest;
+use App\Http\Resources\ReviewResource;
 use App\Models\Review;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class ReviewController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(Request $request): AnonymousResourceCollection
     {
         $user = $request->user();
 
         $reviews = $user->reviews()->with('rateable')->get();
 
-        return response()->json([
-            'message' => 'Reviews retrieved successfully',
-            'reviews' => $reviews
-        ]);
+        return ReviewResource::collection($reviews);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreReviewRequest $request): ReviewResource
     {
-        try {
-            $validatedData = $request->validate([
-                'reviewable_id' => 'required|integer',
-                'reviewable_type' => 'required|string|in:Movie,TvShow,Season',
-                'body' => 'required|string|max:1000'
-            ]);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'message' => 'Validation error',
-                'errors' => $e->errors()
-            ], 422);
-        }
+        $validatedData = $request->validated();
 
         $user = $request->user();
         $modelType = 'App\\Models\\' . $validatedData['reviewable_type'];
@@ -72,10 +61,7 @@ class ReviewController extends Controller
 
         $review->load('reviewable');
 
-        return response()->json([
-            'message' => 'Review added successfully',
-            'review' => $review
-        ], 201);
+        return new ReviewResource($review);
     }
 
     /**
@@ -89,46 +75,22 @@ class ReviewController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Review $review)
+    public function update(UpdateReviewRequest $request, Review $review): ReviewResource
     {
-        if ($request->user()->id !== $review->user_id) {
-            return response()->json([
-                'message' => 'Unauthorized to update this review'
-            ], 403);
-        }
-
-        try {
-            $validatedData = $request->validate([
-                'body' => 'required|string|max:1000'
-            ]);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'message' => 'Validation error',
-                'errors' => $e->errors()
-            ], 422);
-        }
+        $validatedData = $request->validated();
 
         $review->update($validatedData);
 
         $review->load('reviewable');
 
-        return response()->json([
-            'message' => 'Review updated successfully',
-            'review' => $review
-        ]);
+        return new ReviewResource($review);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Request $request, Review $review)
+    public function destroy(UpdateReviewRequest $request, Review $review)
     {
-        if ($request->user()->id !== $review->user_id) {
-            return response()->json([
-                'message' => 'Unauthorized to delete this review'
-            ], 403);
-        }
-
         $review->delete();
 
         return response()->json([

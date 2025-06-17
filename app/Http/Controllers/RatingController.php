@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreRatingRequest;
+use App\Http\Requests\UpdateRatingRequest;
+use App\Http\Resources\RatingResource;
 use App\Models\Rating;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Validation\ValidationException;
 
 class RatingController extends Controller
@@ -12,35 +16,21 @@ class RatingController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(Request $request): AnonymousResourceCollection
     {
         $user = $request->user();
 
         $ratings = $user->ratings()->with('rateable')->get();
 
-        return response()->json([
-            'message' => 'Ratings retrieved successfully',
-            'ratings' => $ratings
-        ]);
+        return RatingResource::collection($ratings);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreRatingRequest $request): RatingResource
     {
-        try {
-            $validatedData = $request->validate([
-                'rateable_id' => 'required|integer',
-                'rateable_type' => 'required|string|in:Movie,TvShow,Season',
-                'rating' => 'required|integer|min:1|max:10'
-            ]);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'message' => 'Validation error',
-                'errors' => $e->errors()
-            ], 422);
-        }
+        $validatedData = $request->validated();
 
         $user = $request->user();
         $modelType = 'App\\Models\\' . $validatedData['rateable_type'];
@@ -72,10 +62,7 @@ class RatingController extends Controller
 
         $rating->load('rateable');
 
-        return response()->json([
-            'message' => 'Rating added successfully',
-            'rating' => $rating
-        ], 201);
+        return new RatingResource($rating);
     }
 
     /**
@@ -89,46 +76,22 @@ class RatingController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Rating $rating)
+    public function update(UpdateRatingRequest $request, Rating $rating): RatingResource
     {
-        if ($request->user()->id !== $rating->user_id) {
-            return response()->json([
-                'message' => 'Unauthorized to update this rating'
-            ], 403);
-        }
-
-        try {
-            $validatedData = $request->validate([
-                'rating' => 'required|integer|min:1|max:10'
-            ]);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'message' => 'Validation error',
-                'errors' => $e->errors()
-            ], 422);
-        }
+        $validatedData = $request->validated();
 
         $rating->update($validatedData);
 
         $rating->load('rateable');
 
-        return response()->json([
-            'message' => 'Rating updated successfully',
-            'rating' => $rating
-        ]);
+        return new RatingResource($rating);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Request $request, Rating $rating)
+    public function destroy(UpdateRatingRequest $request, Rating $rating)
     {
-        if ($request->user()->id !== $rating->user_id) {
-            return response()->json([
-                'message' => 'Unauthorized to delete this rating'
-            ], 403);
-        }
-
         $rating->delete();
 
         return response()->json([

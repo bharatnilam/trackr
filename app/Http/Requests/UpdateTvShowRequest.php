@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateTvShowRequest extends FormRequest
 {
@@ -21,6 +22,8 @@ class UpdateTvShowRequest extends FormRequest
      */
     public function rules(): array
     {
+        $tvShow = $this->route('tv_show');
+        
         return [
             'title' => 'sometimes|required|string|max:255',
             'release_year' => 'sometimes|required|integer|min:1800|max:' . (date('Y') + 5),
@@ -34,7 +37,12 @@ class UpdateTvShowRequest extends FormRequest
             'number_of_episodes' => 'nullable|integer|min:1',
             'status' => 'nullable|string|max:255',
             'poster_image_url' => 'nullable|url|max:2048',
-            'external_id' => 'nullable|string|max:255|unique:tv_shows',
+            'external_id' => [
+                'nullable',
+                'string',
+                'max:255',
+                Rule::unique('tv_shows')->ignore($tvShow->id)
+            ],
             'available_platforms' => 'nullable|string'
         ];
     }

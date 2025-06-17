@@ -40,15 +40,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/watchlist/{watchlistItem}', [WatchlistItemController::class,'destroy']);
     Route::get('watched-history', [WatchlistItemController::class, 'getWatchedHistory']);
 
-    Route::get('/ratings', [RatingController::class,'index']);
-    Route::post('/ratings', [RatingController::class,'store']);
-    Route::put('/ratings/{rating}', [RatingController::class,'update']);
-    Route::delete('/ratings/{rating}', [RatingController::class,'destroy']);
-
-    Route::get('/reviews', [ReviewController::class,'index']);
-    Route::post('/reviews', [ReviewController::class,'store']);
-    Route::put('/reviews/{review}', [ReviewController::class,'update']);
-    Route::delete('/reviews/{review}', [ReviewController::class,'destroy']);
+    Route::apiResource('ratings', RatingController::class)->except(['show']);
+    Route::apiResource('reviews', ReviewController::class)->except(['show']);
 });
 
 /* Route::middleware('auth:sanctum')->get('/user', function (Request $request) {

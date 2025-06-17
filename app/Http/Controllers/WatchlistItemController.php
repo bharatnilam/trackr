@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreWatchlistItemRequest;
+use App\Http\Requests\UpdateWatchlistItemRequest;
+use App\Http\Resources\WatchlistItemResource;
 use App\Models\WatchlistItem;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use function PHPUnit\Framework\returnArgument;
@@ -14,34 +18,21 @@ class WatchlistItemController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(Request $request): AnonymousResourceCollection
     {
         $user = $request->user();
 
         $watchlistItems = $user->watchlistItems()->with('watchable')->get();
 
-        return response()->json([
-            'message' => 'Watchlist items retrieved successfully',
-            'watchlist_items' => $watchlistItems
-        ]);
+        return WatchlistItemResource::collection($watchlistItems);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreWatchlistItemRequest $request): WatchlistItemResource
     {
-        try {
-            $validatedData = $request->validate([
-                'watchable_id' => 'required|integer',
-                'watchable_type' => 'required|string|in:Movie,TvShow'
-            ]);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'message' => 'Validation error',
-                'errors' => $e->errors()
-            ], 422);
-        }
+        $validatedData = $request->validated();
 
         $user = $request->user();
         $modelType = 'App\\Models\\' . $validatedData['watchable_type'];
@@ -73,10 +64,7 @@ class WatchlistItemController extends Controller
 
         $watchlistItem->load('watchable');
 
-        return response()->json([
-            'message' => 'Item added to watchlist successfully!',
-            'watchlist_item' => $watchlistItem
-        ], 201);
+        return new WatchlistItemResource($watchlistItem);
     }
 
     /**
@@ -90,17 +78,9 @@ class WatchlistItemController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, WatchlistItem $watchlistItem)
+    public function update(UpdateWatchlistItemRequest $request, WatchlistItem $watchlistItem): WatchlistItemResource
     {
-        if (Auth::id() !== $watchlistItem->user_id) {
-            return response()->json([
-                'message' => 'Unauthorized'
-            ], 403);
-        }
-
-        $validated = $request->validate([
-            'is_watched' => 'sometimes|boolean'
-        ]);
+        $validated = $request->validated();
 
         if (isset($validated['is_watched']) && $validated['is_watched'] === true) {
             if (! $watchlistItem->is_watched) {
@@ -116,23 +96,14 @@ class WatchlistItemController extends Controller
 
         $watchlistItem->save();
 
-        return response()->json([
-            'message' => 'Watchlist Item updated successfully',
-            'watchlist_item' => $watchlistItem
-        ]);
+        return new WatchlistItemResource($watchlistItem);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Request $request, WatchlistItem $watchlistItem)
+    public function destroy(UpdateWatchlistItemRequest $request, WatchlistItem $watchlistItem)
     {
-        if ($request->user()->id !== $watchlistItem->user_id) {
-            return response()->json([
-                'message' => 'Unauthorized to delete this watchlist item'
-            ], 403);
-        }
-
         $watchlistItem->delete();
 
         return response()->json([
@@ -140,18 +111,15 @@ class WatchlistItemController extends Controller
         ], 204);
     }
 
-    public function getWatchedHistory(Request $request) {
+    public function getWatchedHistory(Request $request): AnonymousResourceCollection {
         $user = $request->user();
 
         $watchedItems = $user->watchlistItems()
             ->where('is_watched', true)
-            ->orderBy('wacthed_at', 'desc')
+            ->orderBy('watched_at', 'desc')
             ->with('watchable')
             ->get();
 
-        return response()->json([
-            'message' => 'Watched history retrieved successfully',
-            'watched_history' => $watchedItems
-        ]);
+        return WatchlistItemResource::collection($watchedItems);
     }
 }

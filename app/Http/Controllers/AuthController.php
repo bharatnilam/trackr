@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\LoginRequest;
+use App\Http\Requests\RegisterRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -9,24 +11,13 @@ use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
-    public function register(Request $request) {
-        try {
-            $request->validate([
-                'username' => ['required', 'string', 'max:255', 'unique:users'],
-                'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-                'password' => ['required', 'string', 'min:8', 'confirmed']
-            ]);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'message' => 'Validation error',
-                'errors' => $e->errors()
-            ], 422);
-        }
+    public function register(RegisterRequest $request) {
+        $validatedData = $request->validated();
 
         $user = User::create([
-            'username' => $request->username,
-            'email' => $request->email,
-            'password' => Hash::make($request->password)
+            'username' => $validatedData['username'],
+            'email' => $validatedData['email'],
+            'password' => Hash::make($validatedData['password'])
         ]);
 
         $token = $user->createToken('auth_token')->plainTextToken;
@@ -38,22 +29,12 @@ class AuthController extends Controller
         ], 201);
     }
 
-    public function login(Request $request) {
-        try {
-            $request->validate([
-                'email' => ['required', 'string', 'email'],
-                'password' => ['required', 'string']
-            ]);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'message' => 'Validation error',
-                'errors' => $e->errors()
-            ], 422);
-        }
+    public function login(LoginRequest $request) {
+        $validatedData = $request->validated();
 
-        $user = User::where('email', $request->email)->first();
+        $user = User::where('email', $validatedData['email'])->first();
 
-        if (! $user || ! Hash::check($request->password, $user->password)) {
+        if (! $user || ! Hash::check($validatedData['password'], $user->password)) {
             return response()->json([
                 'message' => 'Invalid credentials'
             ], 401);
