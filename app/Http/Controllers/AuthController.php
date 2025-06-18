@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\Request;
@@ -31,7 +32,7 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'User registered successfully',
-            'user' => $user,
+            'user' => new UserResource($user),
             'token' => $token
         ], 201);
     }
@@ -56,7 +57,7 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'User logged in successfully',
-            'user' => $user,
+            'user' => new UserResource($user),
             'token' => $token
         ]);
     }
