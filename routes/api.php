@@ -25,6 +25,13 @@ use Illuminate\Support\Facades\Route;
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
+// Health check
+Route::get('/health', function () {
+    return response()->json([
+        'status' => 'ok'
+    ]);
+});
+
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
