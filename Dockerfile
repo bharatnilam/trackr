@@ -46,7 +46,7 @@ RUN chmod +x /usr/local/bin/start.sh
 
 # Create the SQLite database file and set permissions
 # The web server user (www-data) needs to be able to write to storage, bootstrap/cache, and the database file
-RUN touch /var/www/html/database/database.sqlite \
+RUN touch /var/www/html/database/database.sqlite /var/www/html/storage/logs/laravel.log \
     && chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database/database.sqlite \
     && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database/database.sqlite
 
