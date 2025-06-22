@@ -43,11 +43,12 @@ COPY .docker/start.sh /usr/local/bin/start.sh
 RUN chmod +x /usr/local/bin/start.sh
 
 # ** THE KEY FIX IS HERE **
-# Create the database and log files, set ownership, and set permissions to 777 (world-writable).
-# This allows both the startup user (1000) and the web server user (www-data) to write.
-RUN touch /var/www/html/database/database.sqlite /var/www/html/storage/logs/laravel.log \
-    && chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
-    && chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache
+# Set ownership and permissions on all three writable directories.
+# This ensures that both the startup user (1000) and the web server user (www-data)
+# can write to storage, cache, AND the database directory.
+RUN touch /var/www/html/database/database.sqlite \
+    && chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database \
+    && chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database
 
 # Expose port 80 for the Nginx web server
 EXPOSE 80
