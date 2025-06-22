@@ -3,12 +3,16 @@
 # Exit immediately if a command exits with a non-zero status.
 set -e
 
-# Run database migrations. The --force flag is important for non-interactive environments.
+# Run database migrations and cache configurations.
+# These commands run as the 'root' user by default.
 php artisan migrate --force
-
-# It's good practice to cache configuration in production for better performance
 php artisan config:cache
 php artisan route:cache
+
+# IMPORTANT: Fix permissions after running artisan.
+# The artisan commands may create cache files owned by 'root'.
+# We need to give the web server user 'www-data' ownership of these files.
+chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Start PHP-FPM in the background
 php-fpm
