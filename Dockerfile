@@ -1,6 +1,6 @@
 FROM php:8.1-fpm
 
-# Install dependencies including nginx and pdo_sqlite
+# Install dependencies including nginx, pdo_sqlite, and libsqlite3-dev
 RUN apt-get update && apt-get install -y \
     nginx \
     zip \
@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install -y \
     libjpeg62-turbo-dev \
     libfreetype6-dev \
     libzip-dev \
+    libsqlite3-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install pdo_sqlite mbstring exif pcntl bcmath gd zip
 
@@ -30,20 +31,35 @@ WORKDIR /var/www/html
 COPY . /var/www/html
 
 # Install PHP dependencies
-RUN composer install --no-dev --optimize-autoloader
+RUN composer install --no-dev --optimize-autoloader --no-interaction
 
 # Build frontend assets
-RUN npm install && npm run build
+RUN npm install --no-progress && npm run build
 
-# Set permissions
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+# Create SQLite database file and set permissions
+RUN touch /var/www/html/database/database.sqlite \
+    && chown www-data:www-data /var/www/html/database/database.sqlite \
+    && chmod 664 /var/www/html/database/database.sqlite \
+    && chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
+    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Copy nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
+# Add this line before the "Remove default nginx.conf" step
+COPY nginx_main.conf /etc/nginx/nginx.conf
+
+# Remove default nginx.conf to avoid conflicts and create necessary directories
+RUN rm -f /etc/nginx/nginx.conf \
+    && mkdir -p /var/lib/nginx/body /var/lib/nginx/fastcgi /var/lib/nginx/proxy \
+    && chown -R www-data:www-data /var/lib/nginx \
+    && chmod -R 775 /var/lib/nginx
+
+# Add startup script for migrations and nginx
+RUN echo '#!/bin/bash\nphp artisan migrate --force\nnginx -g "daemon off;"' > /start.sh && chmod +x /start.sh
+
 # Expose port 80
 EXPOSE 80
 
-# Add this line before CMD
-RUN echo '#!/bin/bash\nphp artisan migrate --force\nnginx -g "daemon off;"' > /start.sh && chmod +x /start.sh
+# Start the application
 CMD ["/start.sh"]
