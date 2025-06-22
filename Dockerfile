@@ -6,7 +6,7 @@ WORKDIR /app
 COPY database/ database/
 COPY composer.json composer.lock ./
 # Install dependencies, --no-dev for production and --optimize-autoloader for performance
-RUN composer install --no-dev --no-interaction --optimize-autoloader
+RUN composer install --no-dev --no-interaction --no-scripts --optimize-autoloader
 
 
 # ---- Stage 2: Final Production Image ----
