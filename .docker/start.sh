@@ -3,19 +3,17 @@
 # Exit immediately if a command exits with a non-zero status.
 set -e
 
-# Run database migrations and cache configurations.
-# These commands run as the 'root' user by default.
-php artisan migrate --force
-php artisan config:cache
-php artisan route:cache
+# Run artisan commands AS the web server user 'www-data'.
+# This ensures that any files created (cache, logs) have the correct permissions.
+echo "Running migrations and caching as www-data user..."
+su -s /bin/sh -c "php artisan migrate --force" www-data
+su -s /bin/sh -c "php artisan config:cache" www-data
+su -s /bin/sh -c "php artisan route:cache" www-data
+echo "Cache and migrations complete."
 
-# IMPORTANT: Fix permissions after running artisan.
-# The artisan commands may create cache files owned by 'root'.
-# We need to give the web server user 'www-data' ownership of these files.
-chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
-
-# Start PHP-FPM in the background
+# Start PHP-FPM in the background. It will run workers as 'www-data'.
 php-fpm
 
 # Start Nginx in the foreground. This keeps the container running.
+echo "Starting Nginx..."
 nginx -g "daemon off;"
