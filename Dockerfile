@@ -5,7 +5,7 @@ FROM composer:2.7 AS vendor
 WORKDIR /app
 COPY database/ database/
 COPY composer.json composer.lock ./
-# Install dependencies, --no-dev for production and --optimize-autoloader for performance
+# Install dependencies, --no-dev for production and --no-scripts to prevent errors
 RUN composer install --no-dev --no-interaction --no-scripts --optimize-autoloader
 
 
@@ -17,8 +17,6 @@ FROM php:8.1-fpm
 WORKDIR /var/www/html
 
 # Install system dependencies needed for Laravel
-# - nginx for the web server
-# - extensions for php: pdo_sqlite (for your DB), bcmath, and others common for Laravel
 RUN apt-get update && apt-get install -y \
     nginx \
     git \
@@ -44,8 +42,9 @@ COPY .docker/nginx.conf /etc/nginx/conf.d/default.conf
 COPY .docker/start.sh /usr/local/bin/start.sh
 RUN chmod +x /usr/local/bin/start.sh
 
-# Create the SQLite database file and set permissions
-# The web server user (www-data) needs to be able to write to storage, bootstrap/cache, and the database file
+# ** THE KEY FIX IS HERE **
+# Create the database and log files, then set permissions for all necessary directories.
+# This ensures the files exist and are writable by the web server user.
 RUN touch /var/www/html/database/database.sqlite /var/www/html/storage/logs/laravel.log \
     && chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database/database.sqlite \
     && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database/database.sqlite
