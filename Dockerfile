@@ -1,6 +1,6 @@
 # ---- Stage 1: Build PHP Dependencies ----
 # Use the official Composer image to get PHP dependencies
-FROM composer:2.7 as vendor
+FROM composer:2.7 AS vendor
 
 WORKDIR /app
 COPY database/ database/
@@ -9,18 +9,7 @@ COPY composer.json composer.lock ./
 RUN composer install --no-dev --no-interaction --optimize-autoloader
 
 
-# ---- Stage 2: Build Frontend Assets ----
-# Use a Node.js image to build the frontend assets with Vite
-FROM node:18 as frontend
-
-WORKDIR /app
-COPY package.json package-lock.json ./
-RUN npm install
-COPY . .
-RUN npm run build
-
-
-# ---- Stage 3: Final Production Image ----
+# ---- Stage 2: Final Production Image ----
 # Use the lean php-fpm image for the final application
 FROM php:8.1-fpm
 
@@ -46,10 +35,6 @@ RUN apt-get update && apt-get install -y \
 
 # Copy the composer dependencies from the 'vendor' stage
 COPY --from=vendor /app/vendor /var/www/html/vendor
-
-# Copy the frontend assets from the 'frontend' stage
-COPY --from=frontend /app/public /var/www/html/public
-COPY --from=frontend /app/resources /var/www/html/resources
 
 # Copy the rest of the application code
 COPY . .
