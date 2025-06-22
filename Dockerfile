@@ -46,9 +46,6 @@ RUN touch /var/www/html/database/database.sqlite \
 # Copy nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Add this line before the "Remove default nginx.conf" step
-COPY nginx_main.conf /etc/nginx/nginx.conf
-
 # Remove default nginx.conf to avoid conflicts and create necessary directories
 RUN rm -f /etc/nginx/nginx.conf \
     && mkdir -p /var/lib/nginx/body /var/lib/nginx/fastcgi /var/lib/nginx/proxy \
