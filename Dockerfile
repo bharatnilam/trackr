@@ -31,6 +31,9 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean && rm -rf /var/lib/apt/lists/* \
     && docker-php-ext-install pdo_mysql pdo_sqlite mbstring exif pcntl bcmath gd zip
 
+# ADD THIS LINE: Copy custom PHP config to enable error logging
+COPY .docker/php.ini /usr/local/etc/php/conf.d/99-custom.ini
+
 # Copy the composer dependencies from the 'vendor' stage
 COPY --from=vendor /app/vendor /var/www/html/vendor
 
