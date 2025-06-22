@@ -1,62 +1,72 @@
+# ---- Stage 1: Build PHP Dependencies ----
+# Use the official Composer image to get PHP dependencies
+FROM composer:2.7 as vendor
+
+WORKDIR /app
+COPY database/ database/
+COPY composer.json composer.lock ./
+# Install dependencies, --no-dev for production and --optimize-autoloader for performance
+RUN composer install --no-dev --no-interaction --optimize-autoloader
+
+
+# ---- Stage 2: Build Frontend Assets ----
+# Use a Node.js image to build the frontend assets with Vite
+FROM node:18 as frontend
+
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm install
+COPY . .
+RUN npm run build
+
+
+# ---- Stage 3: Final Production Image ----
+# Use the lean php-fpm image for the final application
 FROM php:8.1-fpm
 
-# Install dependencies including nginx, pdo_sqlite, and libsqlite3-dev
+# Set working directory
+WORKDIR /var/www/html
+
+# Install system dependencies needed for Laravel
+# - nginx for the web server
+# - extensions for php: pdo_sqlite (for your DB), bcmath, and others common for Laravel
 RUN apt-get update && apt-get install -y \
     nginx \
-    zip \
-    unzip \
     git \
+    unzip \
+    zip \
     curl \
     libpng-dev \
     libonig-dev \
     libxml2-dev \
-    libjpeg62-turbo-dev \
-    libfreetype6-dev \
     libzip-dev \
     libsqlite3-dev \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo_sqlite mbstring exif pcntl bcmath gd zip
+    && apt-get clean && rm -rf /var/lib/apt/lists/* \
+    && docker-php-ext-install pdo_mysql pdo_sqlite mbstring exif pcntl bcmath gd zip
 
-# Install Composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+# Copy the composer dependencies from the 'vendor' stage
+COPY --from=vendor /app/vendor /var/www/html/vendor
 
-# Install Node.js for Vite build
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
-    && apt-get install -y nodejs \
-    && npm install -g npm
+# Copy the frontend assets from the 'frontend' stage
+COPY --from=frontend /app/public /var/www/html/public
+COPY --from=frontend /app/resources /var/www/html/resources
 
-WORKDIR /var/www/html
+# Copy the rest of the application code
+COPY . .
 
-# Copy project files
-COPY . /var/www/html
+# Copy Nginx and startup script configurations
+COPY .docker/nginx.conf /etc/nginx/conf.d/default.conf
+COPY .docker/start.sh /usr/local/bin/start.sh
+RUN chmod +x /usr/local/bin/start.sh
 
-# Install PHP dependencies
-RUN composer install --no-dev --optimize-autoloader --no-interaction
-
-# Build frontend assets
-RUN npm install --no-progress && npm run build
-
-# Create SQLite database file and set permissions
+# Create the SQLite database file and set permissions
+# The web server user (www-data) needs to be able to write to storage, bootstrap/cache, and the database file
 RUN touch /var/www/html/database/database.sqlite \
-    && chown www-data:www-data /var/www/html/database/database.sqlite \
-    && chmod 664 /var/www/html/database/database.sqlite \
-    && chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
-    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+    && chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database/database.sqlite \
+    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database/database.sqlite
 
-# Copy nginx configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-# Remove default nginx.conf to avoid conflicts and create necessary directories
-RUN rm -f /etc/nginx/nginx.conf \
-    && mkdir -p /var/lib/nginx/body /var/lib/nginx/fastcgi /var/lib/nginx/proxy \
-    && chown -R www-data:www-data /var/lib/nginx \
-    && chmod -R 775 /var/lib/nginx
-
-# Add startup script for migrations and nginx
-RUN echo '#!/bin/bash\nphp artisan migrate --force\nnginx -g "daemon off;"' > /start.sh && chmod +x /start.sh
-
-# Expose port 80
+# Expose port 80 for the Nginx web server
 EXPOSE 80
 
-# Start the application
-CMD ["/start.sh"]
+# The CMD will run our startup script which handles migrations and starts the services
+CMD ["/usr/local/bin/start.sh"]
