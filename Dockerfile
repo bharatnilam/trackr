@@ -12,6 +12,8 @@ COPY --chown=www-data:www-data . .
 # This is more secure and ensures that any files created by composer also have the correct ownership.
 USER www-data
 
+RUN touch database/database.sqlite
+
 # Install Composer dependencies.
 # Laravel's artisan scripts (like package:discover) can now run successfully because
 # the 'www-data' user owns all the necessary files and directories.
