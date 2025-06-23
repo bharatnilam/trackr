@@ -22,5 +22,4 @@ RUN composer install --no-interaction --no-dev --optimize-autoloader
 # Expose port 80 to allow traffic to Nginx
 EXPOSE 80
 
-# The CMD directive is inherited from the base image.
-# The user is already correctly set to 'www-data'.
+CMD ["php-fpm"]
