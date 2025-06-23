@@ -1,6 +1,7 @@
 # .docker/nginx.conf.template
 user 1000;
 worker_processes auto;
+# Tell Nginx to store its process ID file in a writable directory
 pid /tmp/nginx.pid;
 error_log /dev/stderr warn;
 
@@ -10,6 +11,14 @@ events {
 
 http {
     access_log /dev/stdout;
+
+    # ** THE FIX IS HERE **
+    # Force Nginx to use /tmp for all its temporary files
+    client_body_temp_path /tmp/client_body;
+    proxy_temp_path /tmp/proxy_temp;
+    fastcgi_temp_path /tmp/fastcgi_temp;
+    uwsgi_temp_path /tmp/uwsgi_temp;
+    scgi_temp_path /tmp/scgi_temp;
 
     server {
         listen __PORT__;
@@ -25,7 +34,6 @@ http {
             fastcgi_pass unix:/var/run/php/php-fpm.sock;
             fastcgi_index index.php;
             fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
-            # ** THE FIX IS HERE **: Use the absolute path
             include /etc/nginx/fastcgi_params;
         }
     }
