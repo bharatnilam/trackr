@@ -1,66 +1,149 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Trackr API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+[![Laravel](https://img.shields.io/badge/Laravel-10.x-FF2D20?style=for-the-badge&logo=laravel)](https://laravel.com)
+[![PHP](https://img.shields.io/badge/PHP-8.1-777BB4?style=for-the-badge&logo=php)](https://www.php.net/)
+[![Docker](https://img.shields.io/badge/Docker-20.10-2496ED?style=for-the-badge&logo=docker)](https://www.docker.com/)
+[![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-CI/CD-2088FF?style=for-the-badge&logo=github-actions)](.github/workflows/docker-publish.yml)
 
-## About Laravel
+Trackr is a headless backend API built with Laravel, designed to power a media tracking application. It provides a comprehensive set of endpoints to manage movies, TV shows, user watchlists, ratings, and reviews. The application is containerized with Docker and ready for deployment.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Key Features
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+-   **User Authentication**: Secure user registration, login, and token-based authentication using Laravel Sanctum.
+-   **Movie & TV Show Management**: Full CRUD (Create, Read, Update, Delete) functionality for movies and TV shows.
+-   **Watchlist System**: Users can add or remove movies and TV shows from their personal watchlist.
+-   **Watched History**: Track which items have been watched and when.
+-   **Ratings & Reviews**: Users can rate and write reviews for movies and TV shows.
+-   **Polymorphic Relationships**: Efficiently handles relationships for watchlists, ratings, and reviews across different media types (e.g., `Movie`, `TvShow`).
+-   **API Documentation**: Auto-generated, interactive API documentation powered by [Scramble](https://github.com/dedoc/scramble).
+-   **Containerized**: Includes a `Dockerfile` for easy and consistent deployment.
+-   **Continuous Integration**: A GitHub Actions workflow automates building and pushing the Docker image to GitHub Container Registry (GHCR).
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## API Documentation
 
-## Learning Laravel
+This project uses `dedoc/scramble` to automatically generate API documentation from the source code. Once the application is running, you can access the interactive documentation by navigating to the `/docs/api` endpoint of your application URL.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Example: `http://localhost:8000/docs/api`
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## Getting Started (Local Development)
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Follow these steps to get the Trackr API running on your local machine.
 
-## Laravel Sponsors
+### Prerequisites
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+-   PHP 8.1+
+-   Composer
+-   A local database server (e.g., MySQL, PostgreSQL) OR SQLite.
 
-### Premium Partners
+### Installation Steps
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/your-username/trackr-api.git
+    cd trackr-api
+    ```
 
-## Contributing
+2.  **Install Composer dependencies:**
+    ```bash
+    composer install
+    ```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+3.  **Create your environment file:**
+    ```bash
+    cp .env.example .env
+    ```
 
-## Code of Conduct
+4.  **Generate an application key:**
+    ```bash
+    php artisan key:generate
+    ```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+5.  **Configure your `.env` file:**
+    Update the `DB_*` variables to connect to your local database. For a quick start, you can use SQLite by modifying the `.env` file as follows:
+    ```ini
+    DB_CONNECTION=sqlite
+    ```
+    And then create the database file:
+    ```bash
+    touch database/database.sqlite
+    ```
 
-## Security Vulnerabilities
+6.  **Run database migrations:**
+    This will create all the necessary tables in your database.
+    ```bash
+    php artisan migrate
+    ```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+7.  **Start the development server:**
+    ```bash
+    php artisan serve
+    ```
+    The API will now be available at `http://localhost:8000`.
 
-## License
+## Continuous Integration & Deployment
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### GitHub Actions for Docker (GHCR)
+
+The repository includes a GitHub Actions workflow defined in `.github/workflows/docker-publish.yml`. This workflow automates the process of building and publishing a Docker image to the GitHub Container Registry (GHCR).
+
+**How it works:**
+-   **Trigger**: The workflow runs automatically whenever code is pushed to the `main` branch.
+-   **Process**:
+    1.  It checks out the repository's code.
+    2.  It logs into GHCR using a temporary `GITHUB_TOKEN`.
+    3.  It builds the Docker image using the provided `Dockerfile`.
+    4.  It tags the image with `latest` and the commit SHA.
+    5.  Finally, it pushes the tagged image to your repository's package on GHCR.
+
+### Deployment on Render
+
+This application is configured for easy deployment on [Render](https://render.com/) using its Docker support and persistent disks.
+
+1.  **Fork this repository** to your own GitHub account.
+
+2.  On the Render Dashboard, click **New +** and select **Web Service**.
+
+3.  Connect the GitHub repository you just forked.
+
+4.  On the settings page, configure the following:
+    -   **Name**: Give your service a name (e.g., `trackr-api`).
+    -   **Environment**: Select **Docker**.
+    -   **Instance Type**: The free plan is sufficient to get started.
+
+5.  Add a **Persistent Disk** for the SQLite database to prevent data loss on deploys:
+    -   Click **Add Disk**.
+    -   **Name**: `trackr-database`
+    -   **Mount Path**: `/var/www/html/database`
+    -   **Size**: `1 GB` (or as needed)
+
+6.  Add the following **Environment Variables** under the "Advanced" section:
+
+| Key             | Value                                              | Notes                                                                                             |
+| --------------- | -------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| `APP_KEY`       | `base64:YourGeneratedKey=`                         | **Required.** Run `php artisan key:generate --show` locally and paste the output here.              |
+| `APP_URL`       | `${RENDER_EXTERNAL_URL}`                           | This uses Render's built-in variable for the public URL.                                          |
+| `DB_CONNECTION` | `sqlite`                                           | Specifies that the app should use SQLite.                                                         |
+| `DB_DATABASE`   | `/var/www/html/database/database.sqlite`           | The absolute path to the database file on the persistent disk.                                    |
+| `APP_ENV`       | `production`                                       | Puts Laravel in production mode.                                                                  |
+| `APP_DEBUG`     | `false`                                            | Disables debug mode for security.                                                                 |
+| `LOG_CHANNEL`   | `stderr`                                           | Recommended for containerized environments to view logs in the Render log stream.                 |
+
+7.  Click **Create Web Service**. Render will automatically pull your repository, build the Docker image, and deploy your application. The first deploy might take a few minutes.
+
+## Environment Variables
+
+The following environment variables are used by the application. See `.env.example` for a full list.
+
+| Variable           | Description                                                | Default in `.env.example` |
+| ------------------ | ---------------------------------------------------------- | ------------------------- |
+| `APP_NAME`         | The name of your application.                              | `Laravel`                 |
+| `APP_ENV`          | The application environment (e.g., `local`, `production`). | `local`                   |
+| `APP_KEY`          | The application encryption key.                            |                           |
+| `APP_DEBUG`        | Toggles debug mode.                                        | `true`                    |
+| `APP_URL`          | The base URL of the application.                           | `http://localhost`        |
+| `DB_CONNECTION`    | The database driver to use.                                | `mysql`                   |
+| `DB_HOST`          | The database host.                                         | `127.0.0.1`               |
+| `DB_PORT`          | The database port.                                         | `3306`                    |
+| `DB_DATABASE`      | The database name.                                         | `laravel`                 |
+| `DB_USERNAME`      | The database user.                                         | `root`                    |
+| `DB_PASSWORD`      | The database user's password.                              |                           |
