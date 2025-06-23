@@ -22,4 +22,4 @@ RUN composer install --no-interaction --no-dev --optimize-autoloader
 # Expose port 80 to allow traffic to Nginx
 EXPOSE 80
 
-CMD ["php-fpm"]
+ENTRYPOINT ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
