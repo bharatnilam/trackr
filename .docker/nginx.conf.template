@@ -12,7 +12,6 @@ http {
     access_log /dev/stdout;
 
     server {
-        # This port will be replaced by the start.sh script
         listen __PORT__;
         server_name localhost;
         root /var/www/html/public;
@@ -26,7 +25,8 @@ http {
             fastcgi_pass unix:/var/run/php/php-fpm.sock;
             fastcgi_index index.php;
             fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
-            include fastcgi_params;
+            # ** THE FIX IS HERE **: Use the absolute path
+            include /etc/nginx/fastcgi_params;
         }
     }
 }
