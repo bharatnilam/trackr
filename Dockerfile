@@ -1,4 +1,5 @@
 # ---- Stage 1: Build PHP Dependencies ----
+# Use the official Composer image to get PHP dependencies
 FROM composer:2.7 AS vendor
 
 WORKDIR /app
@@ -8,12 +9,24 @@ RUN composer install --no-dev --no-interaction --no-scripts --optimize-autoloade
 
 
 # ---- Stage 2: Final Production Image ----
+# Use the lean php-fpm image for the final application
 FROM php:8.1-fpm
 
 WORKDIR /var/www/html
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y nginx git unzip zip curl \
+# ** THE FIX IS HERE **: Re-added the necessary -dev packages for PHP extensions
+RUN apt-get update && apt-get install -y \
+    nginx \
+    git \
+    unzip \
+    zip \
+    curl \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    libzip-dev \
+    libsqlite3-dev \
     && apt-get clean && rm -rf /var/lib/apt/lists/* \
     && docker-php-ext-install pdo_mysql pdo_sqlite mbstring exif pcntl bcmath gd zip
 
@@ -31,5 +44,5 @@ RUN mkdir -p storage/framework/sessions storage/framework/views storage/framewor
     && chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database
 
 # Expose a default port (will be overridden by PORT env var)
-EXPOSE 8080
+EXPOSE 8080 
 CMD ["/usr/local/bin/start.sh"]
